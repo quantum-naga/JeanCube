@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JeanCube Cosmique - Interface Universelle</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            overflow: hidden;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .system-group {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .system-title {
+            color: #ffff00;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        label {
+            font-size: 11px;
+            color: #00ff88;
+            width: 80px;
+            margin-right: 10px;
+        }
+        
+        input[type="range"] {
+            width: 100px;
+            margin-right: 10px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #00ff88, #00dd77);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 10px;
+            margin: 2px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: linear-gradient(45deg, #00dd77, #00bb66);
+            transform: scale(1.05);
+        }
+        
+        .value {
+            color: #ffff00;
+            font-weight: bold;
+            font-size: 11px;
+            min-width: 30px;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+            max-width: 350px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        #dataDisplay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(15px);
+            border: 1px solid #00ff88;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            min-width: 300px;
+        }
+        
+        #canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .trigram {
+            font-size: 16px;
+            margin: 2px;
+        }
+        
+        .note {
+            background: rgba(255, 255, 0, 0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin: 2px;
+            display: inline-block;
+        }
+        
+        .codon {
+            background: rgba(255, 0, 255, 0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin: 1px;
+            font-size: 9px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        
+        <div id="controls">
+            <h3>🌌 JeanCube Cosmique</h3>
+            
+            <div class="system-group">
+                <div class="system-title">⚡ Système Principal</div>
+                <div class="control-row">
+                    <label>Mode:</label>
+                    <button id="systemMode">🔄 I-Ching</button>
+                </div>
+                <div class="control-row">
+                    <label>Rotation:</label>
+                    <button id="toggleRotation">⏸️ Pause</button>
+                </div>
+            </div>
+            
+            <div class="system-group">
+                <div class="system-title">🎵 Harmoniques</div>
+                <div class="control-row">
+                    <label>Octave:</label>
+                    <input type="range" id="octave" min="3" max="7" value="4">
+                    <span id="octaveValue" class="value">4</span>
+                </div>
+                <div class="control-row">
+                    <label>Tempo:</label>
+                    <input type="range" id="tempo" min="60" max="200" value="120">
+                    <span id="tempoValue" class="value">120</span>
+                </div>
+            </div>
+            
+            <div class="system-group">
+                <div class="system-title">🧬 Génétique</div>
+                <div class="control-row">
+                    <label>Codon:</label>
+                    <input type="range" id="codonIndex" min="0" max="63" value="0">
+                    <span id="codonValue" class="value">0</span>
+                </div>
+                <div class="control-row">
+                    <button id="generateDNA">🔬 Nouvelle séquence</button>
+                </div>
+            </div>
+            
+            <div class="system-group">
+                <div class="system-title">🌊 Cymatique</div>
+                <div class="control-row">
+                    <label>Fréq:</label>
+                    <input type="range" id="frequency" min="200" max="2000" value="432">
+                    <span id="frequencyValue" class="value">432</span>Hz
+                </div>
+                <div class="control-row">
+                    <button id="playFrequency">🔊 Jouer</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="info">
+            <h3>🌌 Architecture Universelle</h3>
+            <p><strong>Découverte:</strong> Tout est connecté par l'octal !</p>
+            <div style="margin: 10px 0;">
+                <div>📱 <strong>8 bits</strong> ↔ Information</div>
+                <div>☰ <strong>8 trigrams</strong> ↔ Sagesse</div>
+                <div>🎵 <strong>8 notes</strong> ↔ Harmonie</div>
+                <div>🌊 <strong>Cymatique</strong> ↔ Vibration</div>
+                <div>🧬 <strong>64 codons</strong> ↔ Vie</div>
+            </div>
+            <hr style="border-color: #00ff88; margin: 15px 0;">
+            <p><strong>JeanCube = Traducteur Cosmique</strong></p>
+            <p style="font-size: 10px; color: #888;">
+                🎯 Clic + Glisser pour naviguer<br>
+                🔍 Molette pour zoomer<br>
+                🌟 Chaque point = intersection universelle
+            </p>
+        </div>
+        
+        <div id="dataDisplay">
+            <div id="currentData"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Données universelles
+        const TRIGRAMS = ['☰', '☱', '☲', '☳', '☴', '☵', '☶', '☷'];
+        const TRIGRAM_NAMES = ['Ciel', 'Lac', 'Feu', 'Tonnerre', 'Vent', 'Eau', 'Montagne', 'Terre'];
+        const NOTES = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si', 'Do'];
+        const FREQUENCIES = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25];
+        
+        const CODONS = [
+            'UUU', 'UUC', 'UUA', 'UUG', 'UCU', 'UCC', 'UCA', 'UCG',
+            'UAU', 'UAC', 'UAA', 'UAG', 'UGU', 'UGC', 'UGA', 'UGG',
+            'CUU', 'CUC', 'CUA', 'CUG', 'CCU', 'CCC', 'CCA', 'CCG',
+            'CAU', 'CAC', 'CAA', 'CAG', 'CGU', 'CGC', 'CGA', 'CGG',
+            'AUU', 'AUC', 'AUA', 'AUG', 'ACU', 'ACC', 'ACA', 'ACG',
+            'AAU', 'AAC', 'AAA', 'AAG', 'AGU', 'AGC', 'AGA', 'AGG',
+            'GUU', 'GUC', 'GUA', 'GUG', 'GCU', 'GCC', 'GCA', 'GCG',
+            'GAU', 'GAC', 'GAA', 'GAG', 'GGU', 'GGC', 'GGA', 'GGG'
+        ];
+
+        // Variables globales
+        let scene, camera, renderer, cubePoints, systemMode = 'iching';
+        let rotationEnabled = true;
+        let currentOctave = 4, currentTempo = 120, currentCodon = 0, currentFrequency = 432;
+        let audioContext, oscillator;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+
+        // Initialisation
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0a);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 12);
+
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Création du cube cosmique
+            createCosmicCube();
+
+            // Contrôles
+            setupControls();
+            setupMouseControls();
+
+            // Audio
+            setupAudio();
+
+            // Démarrage
+            animate();
+            updateDataDisplay();
+        }
+
+        function createCosmicCube() {
+            if (cubePoints) {
+                scene.remove(cubePoints);
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+            const pointsData = [];
+
+            // Création des 8 sommets principaux (trigrams)
+            for (let i = 0; i < 8; i++) {
+                const x = (i & 1) ? 3 : -3;
+                const y = (i & 2) ? 3 : -3;
+                const z = (i & 4) ? 3 : -3;
+                
+                positions.push(x, y, z);
+                
+                // Couleur basée sur le système actuel
+                let color = getSystemColor(i);
+                colors.push(color.r, color.g, color.b);
+                
+                pointsData.push({
+                    index: i,
+                    trigram: TRIGRAMS[i],
+                    note: NOTES[i],
+                    binary: i.toString(2).padStart(3, '0'),
+                    octal: i.toString(8),
+                    frequency: FREQUENCIES[i] * Math.pow(2, currentOctave - 4)
+                });
+            }
+
+            // Ajout des points internes (64 codons)
+            for (let i = 0; i < 64; i++) {
+                const angle1 = (i / 64) * Math.PI * 2;
+                const angle2 = (i / 64) * Math.PI * 4;
+                const radius = 1.5 + Math.sin(angle2) * 0.5;
+                
+                const x = radius * Math.cos(angle1) * Math.cos(angle2);
+                const y = radius * Math.sin(angle1) * Math.cos(angle2);
+                const z = radius * Math.sin(angle2);
+                
+                positions.push(x, y, z);
+                
+                // Couleur pour les codons
+                const codonColor = getCodonColor(i);
+                colors.push(codonColor.r, codonColor.g, codonColor.b);
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.1,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            cubePoints = new THREE.Points(geometry, material);
+            scene.add(cubePoints);
+
+            // Lignes de connexion
+            createConnections();
+        }
+
+        function createConnections() {
+            // Connexions entre les 8 sommets (structure du cube)
+            const connections = [
+                [0,1], [1,3], [3,2], [2,0], // Face avant
+                [4,5], [5,7], [7,6], [6,4], // Face arrière
+                [0,4], [1,5], [2,6], [3,7]  // Connexions avant/arrière
+            ];
+
+            connections.forEach(([a, b]) => {
+                const geometry = new THREE.BufferGeometry();
+                const positions = [];
+                
+                const posA = new THREE.Vector3(
+                    (a & 1) ? 3 : -3,
+                    (a & 2) ? 3 : -3,
+                    (a & 4) ? 3 : -3
+                );
+                const posB = new THREE.Vector3(
+                    (b & 1) ? 3 : -3,
+                    (b & 2) ? 3 : -3,
+                    (b & 4) ? 3 : -3
+                );
+
+                positions.push(posA.x, posA.y, posA.z);
+                positions.push(posB.x, posB.y, posB.z);
+
+                geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+                const material = new THREE.LineBasicMaterial({
+                    color: 0x00ff88,
+                    transparent: true,
+                    opacity: 0.3
+                });
+
+                const line = new THREE.Line(geometry, material);
+                scene.add(line);
+            });
+        }
+
+        function getSystemColor(index) {
+            switch(systemMode) {
+                case 'iching':
+                    return {
+                        r: (index & 1) ? 1 : 0.3,
+                        g: (index & 2) ? 1 : 0.3,
+                        b: (index & 4) ? 1 : 0.3
+                    };
+                case 'music':
+                    const hue = (index / 8) * 360;
+                    return hslToRgb(hue / 360, 0.8, 0.6);
+                case 'genetics':
+                    return {
+                        r: Math.sin(index * 0.5) * 0.5 + 0.5,
+                        g: Math.cos(index * 0.7) * 0.5 + 0.5,
+                        b: Math.sin(index * 1.1) * 0.5 + 0.5
+                    };
+                case 'cymatic':
+                    const freq = FREQUENCIES[index];
+                    return {
+                        r: Math.sin(freq * 0.001) * 0.5 + 0.5,
+                        g: Math.cos(freq * 0.002) * 0.5 + 0.5,
+                        b: Math.sin(freq * 0.003) * 0.5 + 0.5
+                    };
+                default:
+                    return {r: 0.5, g: 0.8, b: 1.0};
+            }
+        }
+
+        function getCodonColor(index) {
+            const codon = CODONS[index];
+            return {
+                r: codon.includes('U') ? 0.8 : 0.3,
+                g: codon.includes('C') ? 0.8 : 0.3,
+                b: codon.includes('A') || codon.includes('G') ? 0.8 : 0.3
+            };
+        }
+
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s == 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            return {r: r, g: g, b: b};
+        }
+
+        function setupControls() {
+            // Mode système
+            document.getElementById('systemMode').addEventListener('click', () => {
+                const modes = ['iching', 'music', 'genetics', 'cymatic'];
+                const names = ['🔄 I-Ching', '🎵 Musique', '🧬 Génétique', '🌊 Cymatique'];
+                const currentIndex = modes.indexOf(systemMode);
+                const nextIndex = (currentIndex + 1) % modes.length;
+                systemMode = modes[nextIndex];
+                document.getElementById('systemMode').textContent = names[nextIndex];
+                createCosmicCube();
+                updateDataDisplay();
+            });
+
+            // Rotation
+            document.getElementById('toggleRotation').addEventListener('click', () => {
+                rotationEnabled = !rotationEnabled;
+                document.getElementById('toggleRotation').textContent = rotationEnabled ? '⏸️ Pause' : '▶️ Play';
+            });
+
+            // Octave
+            document.getElementById('octave').addEventListener('input', (e) => {
+                currentOctave = parseInt(e.target.value);
+                document.getElementById('octaveValue').textContent = currentOctave;
+                updateDataDisplay();
+            });
+
+            // Tempo
+            document.getElementById('tempo').addEventListener('input', (e) => {
+                currentTempo = parseInt(e.target.value);
+                document.getElementById('tempoValue').textContent = currentTempo;
+            });
+
+            // Codon
+            document.getElementById('codonIndex').addEventListener('input', (e) => {
+                currentCodon = parseInt(e.target.value);
+                document.getElementById('codonValue').textContent = currentCodon;
+                updateDataDisplay();
+            });
+
+            // Fréquence
+            document.getElementById('frequency').addEventListener('input', (e) => {
+                currentFrequency = parseInt(e.target.value);
+                document.getElementById('frequencyValue').textContent = currentFrequency;
+            });
+
+            // Génération ADN
+            document.getElementById('generateDNA').addEventListener('click', () => {
+                currentCodon = Math.floor(Math.random() * 64);
+                document.getElementById('codonIndex').value = currentCodon;
+                document.getElementById('codonValue').textContent = currentCodon;
+                updateDataDisplay();
+            });
+
+            // Jouer fréquence
+            document.getElementById('playFrequency').addEventListener('click', () => {
+                playFrequency(currentFrequency);
+            });
+        }
+
+        function setupMouseControls() {
+            let mouseDown = false;
+            let mouseXOnMouseDown = 0;
+            let mouseYOnMouseDown = 0;
+
+            document.addEventListener('mousedown', (e) => {
+                mouseDown = true;
+                mouseXOnMouseDown = e.clientX;
+                mouseYOnMouseDown = e.clientY;
+            });
+
+            document.addEventListener('mouseup', () => {
+                mouseDown = false;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (mouseDown) {
+                    targetRotationY = (e.clientX - mouseXOnMouseDown) * 0.01;
+                    targetRotationX = (e.clientY - mouseYOnMouseDown) * 0.01;
+                }
+            });
+
+            document.addEventListener('wheel', (e) => {
+                camera.position.z += e.deltaY * 0.01;
+                camera.position.z = Math.max(5, Math.min(30, camera.position.z));
+            });
+        }
+
+        function setupAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+
+        function playFrequency(freq) {
+            if (!audioContext) return;
+
+            if (oscillator) {
+                oscillator.stop();
+            }
+
+            oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = freq;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 1);
+        }
+
+        function updateDataDisplay() {
+            const trigram = TRIGRAMS[currentCodon % 8];
+            const note = NOTES[currentCodon % 8];
+            const codon = CODONS[currentCodon];
+            const binary = (currentCodon % 256).toString(2).padStart(8, '0');
+            const octal = (currentCodon % 64).toString(8);
+            const frequency = FREQUENCIES[currentCodon % 8] * Math.pow(2, currentOctave - 4);
+
+            document.getElementById('currentData').innerHTML = `
+                <div style="color: #ffff00; font-weight: bold; margin-bottom: 10px;">📊 État Actuel du Système</div>
+                <div>🔢 <strong>Binaire:</strong> ${binary}</div>
+                <div>🔢 <strong>Octal:</strong> ${octal}</div>
+                <div>☰ <strong>Trigram:</strong> ${trigram} (${TRIGRAM_NAMES[currentCodon % 8]})</div>
+                <div>🎵 <strong>Note:</strong> <span class="note">${note}</span> (${Math.round(frequency)}Hz)</div>
+                <div>🧬 <strong>Codon:</strong> <span class="codon">${codon}</span></div>
+                <div>🌊 <strong>Cymatique:</strong> ${currentFrequency}Hz</div>
+                <div style="margin-top: 10px; font-size: 10px; color: #888;">
+                    Mode: ${systemMode.toUpperCase()} | Octave: ${currentOctave} | Tempo: ${currentTempo}
+                </div>
+            `;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (rotationEnabled && cubePoints) {
+                cubePoints.rotation.y += 0.005;
+                cubePoints.rotation.x += 0.003;
+            }
+
+            // Rotation souris
+            if (cubePoints) {
+                cubePoints.rotation.x += targetRotationX * 0.1;
+                cubePoints.rotation.y += targetRotationY * 0.1;
+            }
+
+            targetRotationX *= 0.95;
+            targetRotationY *= 0.95;
+
+            renderer.render(scene, camera);
+        }
+
+        // Redimensionnement
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Démarrage
+        init();
+    </script>
+</body>
+</html>
